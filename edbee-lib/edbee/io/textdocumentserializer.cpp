@@ -16,6 +16,8 @@
 
 #include "edbee/debug.h"
 
+#include <QApplication>
+
 namespace edbee {
 
 TextDocumentSerializer::TextDocumentSerializer( TextDocument* textDocument )
@@ -81,6 +83,7 @@ bool TextDocumentSerializer::loadWithoutOpening( QIODevice* ioDevice )
 
         // we're done
         if( bytesRead <= 0 ) break;
+        QApplication::processEvents();
     }
 
     // When no line ending could be detected, take the unix line ending

@@ -3,6 +3,8 @@
  * Author Rick Blommers
  */
 
+#include <QApplication>
+
 #include "textsearcher.h"
 
 #include "edbee/models/texteditorconfig.h"
@@ -244,6 +246,7 @@ void TextSearcher::markAll(TextRangeSet *rangeset)
     {
         rangeset->addRange(range.anchor(), range.caret());
         range = findNextRange( rangeset );
+        QApplication::processEvents(); // avoid blocking interface for large file
     }
     wrapAround_ = oldWrapAround;
     reverse_ = oldReverse;
