@@ -391,9 +391,12 @@ QList<TextGrammar*> TextGrammarManager::grammarsSortedByDisplayName()
 /// @return the defaultGrammar if no grammar was found
 TextGrammar* TextGrammarManager::detectGrammarWithFilename(const QString& fileName)
 {
+    QString myExt = QFileInfo(fileName).completeSuffix();
+    if( myExt.isEmpty() )
+        myExt = QFileInfo(fileName).fileName();
     foreach( TextGrammar* grammar, grammarMap_.values() ) {
         foreach( QString ext, grammar->fileExtensions() ) {
-            if( fileName.endsWith( QStringLiteral(".%1").arg(ext) ) ) return grammar;
+            if( myExt == ext ) return grammar;
         }
     }
     return this->defaultGrammar();
