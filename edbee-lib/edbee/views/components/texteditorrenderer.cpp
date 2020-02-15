@@ -122,7 +122,8 @@ void TextEditorRenderer::renderLineBorderedRanges(QPainter *painter,int line)
     TextRangeSet* sel = renderer()->controller()->borderedTextRanges();
     int lineHeight = renderer()->lineHeight();
 
-    QPen pen(themeRef_->foregroundColor(), 0.5);
+    QPen pen(themeRef_->findHighlightForegroundColor(), 0.5);
+    QBrush brush(themeRef_->findHighlightBackgroundColor());
     painter->setRenderHint(QPainter::Antialiasing);
 
     int firstRangeIdx=0;
@@ -149,6 +150,7 @@ void TextEditorRenderer::renderLineBorderedRanges(QPainter *painter,int line)
 
             QPainterPath path;
             path.addRoundedRect(startX, line*lineHeight + rect.top(), endX - startX, rect.height(),5,5);
+            painter->fillPath(path, brush);
             painter->strokePath(path, pen);
 //            painter->strok(startX, line*lineHeight + rect.top(), endX - startX, rect.height(),  themeRef_->selectionColor() ); //QColor::fromRgb(0xDD, 0x88, 0xEE) );
         }
