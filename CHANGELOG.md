@@ -2,6 +2,11 @@
 
 edbee.lib:
 
+- fix #96, Added support for readonly mode, via widget->setReadonly() or controller->setReadonly
+- fix #90, Fixed several Qt deprecation warnings. Chagned 0 to nullptr. Possible incompatibility with older releases!
+- add #101, Support for JSON based grammar files.
+- fix #67, PlacholderText support via TextEditorWidget::setPlaceholderText. (uses 70% opacity of foreground color)
+- fix #98, Missing header include in Qt 5.15rc
 - fix #94 (partial), Resource delete fix in TextDocumentscopes
 - Merged PR #86, Updated QsLog
 - fix #89, Replace qSort with std::sort

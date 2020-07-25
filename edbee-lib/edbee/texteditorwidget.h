@@ -61,8 +61,13 @@ public:
     QScrollBar* verticalScrollBar() const;
     void setVerticalScrollBar( QScrollBar* scrollBar );
     void setHorizontalScrollBar( QScrollBar* scrollBar );
-    int autoScrollMargin() const;
+	int autoScrollMargin() const;
     void setAutoScrollMargin(int amount=50);
+    void setPlaceholderText(const QString& text);
+
+    virtual bool readonly() const;
+    void setReadonly(bool readonly);
+
 
 protected:
 
@@ -102,7 +107,8 @@ private:
     TextMarginComponent* marginCompRef_;                  ///< The margin components
     TextEditorAutoCompleteComponent* autoCompleteCompRef_; ///< The autocomplete list widget
 
-    int autoScrollMargin_; //< Customize the autoscroll margin
+    int autoScrollMargin_;                                 ///< Customize the autoscroll margin
+    bool readonly_;                                        ///< Readonly mode
 };
 
 } // edbee

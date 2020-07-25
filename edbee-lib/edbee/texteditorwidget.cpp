@@ -47,19 +47,20 @@ namespace edbee {
 
 
 /// The default TextEditor widget constructor
-TextEditorWidget::TextEditorWidget( QWidget* parent)
-    : QWidget( parent )
-    , controller_(0)
-    , scrollAreaRef_(0)
-    , editCompRef_(0)
-    , autoCompleteCompRef_(0)
+TextEditorWidget::TextEditorWidget(QWidget* parent)
+    : QWidget(parent)
+    , controller_(nullptr)
+    , scrollAreaRef_(nullptr)
+    , editCompRef_(nullptr)
+    , autoCompleteCompRef_(nullptr)
     , autoScrollMargin_(50)
+    , readonly_(false)
 {
     // auto initialize edbee if this hasn't been done alread
     Edbee::instance()->autoInit();
 
     // create the controller
-    controller_ = new TextEditorController(this );
+    controller_ = new TextEditorController(this);
 
     // setup the ui
     scrollAreaRef_ = new class TextEditorScrollArea(this);
@@ -85,7 +86,7 @@ TextEditorWidget::TextEditorWidget( QWidget* parent)
 
     /// TODO: Check if this works.. It could be possible the layout screws this
     /// If I add this before the setLayout everything hangs :S ...
-    autoCompleteCompRef_ = new TextEditorAutoCompleteComponent(controller_,editCompRef_);
+    autoCompleteCompRef_ = new TextEditorAutoCompleteComponent( controller_, editCompRef_, marginCompRef_ );
 
 
     marginCompRef_->init();
@@ -94,6 +95,7 @@ TextEditorWidget::TextEditorWidget( QWidget* parent)
     connect( this, SIGNAL(horizontalScrollBarChanged(QScrollBar*)), SLOT(connectHorizontalScrollBar()) );
     connect( this, SIGNAL(verticalScrollBarChanged(QScrollBar*)), SLOT(connectVerticalScrollBar()) );
     connect( editCompRef_, SIGNAL(textKeyPressed()), autoCompleteCompRef_, SLOT(textKeyPressed()));
+    connect( controller_, SIGNAL(backspacePressed()), autoCompleteCompRef_, SLOT(backspacePressed()));
 
 
     setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
@@ -264,6 +266,24 @@ void TextEditorWidget::setAutoScrollMargin(int amount)
     autoScrollMargin_ = amount;
 }
 
+void TextEditorWidget::setPlaceholderText(const QString &text)
+{
+    this->textRenderer()->placeholderTextDocument()->setText(text);
+}
+
+
+/// Return the readonly status
+bool TextEditorWidget::readonly() const
+{
+    return readonly_;
+}
+
+/// Set the readonly status
+void TextEditorWidget::setReadonly(bool value)
+{
+    readonly_ = value;
+}
+
 
 /// This mehtod is called when a resize happens
 /// @param event the event of the editor widget
@@ -272,7 +292,6 @@ void TextEditorWidget::resizeEvent(QResizeEvent* event)
     QWidget::resizeEvent(event);
     updateRendererViewport();
 }
-
 
 /// a basic event-filter for recieving focus-events of the editor
 /// @param obj the object to filter the events for

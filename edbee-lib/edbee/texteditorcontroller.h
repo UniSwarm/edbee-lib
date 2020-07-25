@@ -96,6 +96,8 @@ signals:
     void commandToBeExecuted( edbee::TextEditorCommand* command );
     void commandExecuted( edbee::TextEditorCommand* command );
 
+    void backspacePressed();
+
 public slots:
 
     void onTextChanged( edbee::TextBufferChange change );
@@ -143,6 +145,10 @@ public slots:
     // low level command execution
     virtual void executeCommand( TextEditorCommand* textCommand );
     virtual bool executeCommand( const QString& name=QString() );
+
+    // returns the readonly state
+    virtual bool readonly() const;
+    virtual void setReadonly(bool value);
 
 private:
 
