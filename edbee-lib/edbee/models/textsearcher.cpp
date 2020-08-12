@@ -27,7 +27,7 @@ TextSearcher::TextSearcher( QObject* parent )
     , caseSensitive_(false)
     , wrapAround_(true)
     , reverse_(false)
-    , regExp_(0)
+    , regExp_(nullptr)
 {
 }
 
@@ -241,6 +241,7 @@ void TextSearcher::markAll(TextRangeSet *rangeset)
     reverse_ = false;
     wrapAround_ = false;
     rangeset->clear();
+    rangeset->beginChanges();
     TextRange range = findNextRange(rangeset);
     while( !range.isEmpty() )
     {
@@ -248,6 +249,7 @@ void TextSearcher::markAll(TextRangeSet *rangeset)
         range = findNextRange( rangeset );
         QApplication::processEvents(); // avoid blocking interface for large file
     }
+    rangeset->endChanges();
     wrapAround_ = oldWrapAround;
     reverse_ = oldReverse;
 }
@@ -362,7 +364,7 @@ void TextSearcher::selectUnderExpand( TextEditorWidget* widget, bool selectAllTe
 void TextSearcher::setDirty()
 {
     delete regExp_;
-    regExp_ = 0;
+    regExp_ = nullptr;
 }
 
 
