@@ -149,9 +149,9 @@ int TextRenderer::totalHeight()
 int TextRenderer::emWidth()
 {
 #if QT_VERSION >= 0x051100
-    return textWidget()->width().horizontalAdvance('M');
-#else
     return textWidget()->fontMetrics().horizontalAdvance('M');
+#else
+    return textWidget()->fontMetrics().width('M');
 #endif
 }
 
@@ -161,9 +161,9 @@ int TextRenderer::emWidth()
 int TextRenderer::nrWidth()
 {
 #if QT_VERSION >= 0x051100
-    return textWidget()->width().horizontalAdvance('8');
-#else
     return textWidget()->fontMetrics().horizontalAdvance('8');
+#else
+    return textWidget()->fontMetrics().width('8');
 #endif
 }
 
@@ -262,14 +262,16 @@ QTextLayout *TextRenderer::textLayoutForLineForPlaceholder(int line)
     if( !textLayout ) {
         textLayout = new QTextLayout();
         textLayout->setCacheEnabled(true);
-#if QT_VERSION >= 0x051100
-        int tabWidth = controllerRef_->widget()->fontMetrics().width('M');
-#else
-        int tabWidth = controllerRef_->widget()->fontMetrics().horizontalAdvance('M');
-#endif
 
         QTextOption option;
+#if QT_VERSION >= 0x051000
+ #if QT_VERSION >= 0x051100
+        int tabWidth = controllerRef_->widget()->fontMetrics().horizontalAdvance('M');
+#else
+        int tabWidth = controllerRef_->widget()->fontMetrics().width('M');
+ #endif
         option.setTabStopDistance(config()->indentSize() * tabWidth);
+#endif
         if( config()->showWhitespaceMode() == TextEditorConfig::ShowWhitespaces ) {
             option.setFlags( QTextOption::ShowTabsAndSpaces );        /// TODO: Make an option to show spaces and tabs
         }
@@ -324,14 +326,16 @@ QTextLayout *TextRenderer::textLayoutForLineNormal(int line)
     if( !textLayout ) {
         textLayout = new QTextLayout();
         textLayout->setCacheEnabled(true);
-#if QT_VERSION >= 0x051100
-        int tabWidth = controllerRef_->widget()->fontMetrics().width('M');
-#else
-        int tabWidth = controllerRef_->widget()->fontMetrics().horizontalAdvance('M');
-#endif
 
         QTextOption option;
+#if QT_VERSION >= 0x051000
+#if QT_VERSION >= 0x051100
+        int tabWidth = controllerRef_->widget()->fontMetrics().horizontalAdvance('M');
+#else
+        int tabWidth = controllerRef_->widget()->fontMetrics().width('M');
+#endif
         option.setTabStopDistance(config()->indentSize() * tabWidth);
+#endif
 
         if( config()->showWhitespaceMode() == TextEditorConfig::ShowWhitespaces ) {
             option.setFlags( QTextOption::ShowTabsAndSpaces );        /// TODO: Make an option to show spaces and tabs
