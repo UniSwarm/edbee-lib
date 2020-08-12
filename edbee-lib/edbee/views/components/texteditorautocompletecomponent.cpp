@@ -158,10 +158,18 @@ void TextEditorAutoCompleteComponent::showInfoTip()
         }
         if( sDetail.contains(" = ") ){
             sType = QString("%1").arg(sDetail.split(" = ").value(0));
+#if QT_VERSION >= 0x051100
+            int width = fm.width(QString("%1   %2").arg(sLabel).arg(sType)) + widthMod;
+#else
             int width = fm.horizontalAdvance(QString("%1   %2").arg(sLabel).arg(sType)) + widthMod;
+#endif
             maxWidth = qMax(width, maxWidth);
         } else {
+#if QT_VERSION >= 0x051100
+            int width = fm.width(QString("%1").arg(sLabel)) + widthMod;
+#else
             int width = fm.horizontalAdvance(QString("%1").arg(sLabel)) + widthMod;
+#endif
             maxWidth = qMax(width, maxWidth);
         }
     }
@@ -474,8 +482,13 @@ void AutoCompleteDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
     QPen typePen = QPen(themeRef_->findHighlightForegroundColor());
     QPen namePen = QPen(themeRef_->foregroundColor());
 
+#if QT_VERSION >= 0x051100
+    hyphenRect.setX(hyphenRect.x() + fm.width(sLabel));
+    typeRect.setX(nameRect.x() + nameRect.width() - fm.width(sType) - 1);
+#else
     hyphenRect.setX(hyphenRect.x() + fm.horizontalAdvance(sLabel));
     typeRect.setX(nameRect.x() + nameRect.width() - fm.horizontalAdvance(sType) - 1);
+#endif
     painter->setFont(font);
     painter->drawText(nameRect, sLabel);
 

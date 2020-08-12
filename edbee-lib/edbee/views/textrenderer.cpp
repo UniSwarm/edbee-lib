@@ -148,7 +148,11 @@ int TextRenderer::totalHeight()
 /// This method returns width of the M cahracter
 int TextRenderer::emWidth()
 {
+#if QT_VERSION >= 0x051100
+    return textWidget()->width().horizontalAdvance('M');
+#else
     return textWidget()->fontMetrics().horizontalAdvance('M');
+#endif
 }
 
 
@@ -156,7 +160,11 @@ int TextRenderer::emWidth()
 /// Often the M is to wide. That why we have a nr width which takes the 8 for the width
 int TextRenderer::nrWidth()
 {
+#if QT_VERSION >= 0x051100
+    return textWidget()->width().horizontalAdvance('8');
+#else
     return textWidget()->fontMetrics().horizontalAdvance('8');
+#endif
 }
 
 
@@ -254,7 +262,11 @@ QTextLayout *TextRenderer::textLayoutForLineForPlaceholder(int line)
     if( !textLayout ) {
         textLayout = new QTextLayout();
         textLayout->setCacheEnabled(true);
+#if QT_VERSION >= 0x051100
+        int tabWidth = controllerRef_->widget()->fontMetrics().width('M');
+#else
         int tabWidth = controllerRef_->widget()->fontMetrics().horizontalAdvance('M');
+#endif
 
         QTextOption option;
         option.setTabStopDistance(config()->indentSize() * tabWidth);
@@ -312,7 +324,11 @@ QTextLayout *TextRenderer::textLayoutForLineNormal(int line)
     if( !textLayout ) {
         textLayout = new QTextLayout();
         textLayout->setCacheEnabled(true);
+#if QT_VERSION >= 0x051100
+        int tabWidth = controllerRef_->widget()->fontMetrics().width('M');
+#else
         int tabWidth = controllerRef_->widget()->fontMetrics().horizontalAdvance('M');
+#endif
 
         QTextOption option;
         option.setTabStopDistance(config()->indentSize() * tabWidth);
