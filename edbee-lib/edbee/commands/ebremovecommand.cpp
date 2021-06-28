@@ -3,7 +3,7 @@
  * Author Rick Blommers
  */
 
-#include "removecommand.h"
+#include "ebremovecommand.h"
 
 #include "edbee/models/changes/mergablechangegroup.h"
 #include "edbee/models/textdocument.h"

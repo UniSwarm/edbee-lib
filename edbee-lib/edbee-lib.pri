@@ -8,12 +8,12 @@ SOURCES += \
     $$PWD/edbee/commands/cutcommand.cpp \
     $$PWD/edbee/commands/debugcommand.cpp \
     $$PWD/edbee/commands/duplicatecommand.cpp \
+    $$PWD/edbee/commands/ebremovecommand.cpp \
     $$PWD/edbee/commands/findcommand.cpp \
     $$PWD/edbee/commands/movelinecommand.cpp \
     $$PWD/edbee/commands/newlinecommand.cpp \
     $$PWD/edbee/commands/pastecommand.cpp \
     $$PWD/edbee/commands/redocommand.cpp \
-    $$PWD/edbee/commands/removecommand.cpp \
     $$PWD/edbee/commands/replaceselectioncommand.cpp \
     $$PWD/edbee/commands/selectioncommand.cpp \
     $$PWD/edbee/commands/tabcommand.cpp \
@@ -87,12 +87,12 @@ HEADERS += \
     $$PWD/edbee/commands/cutcommand.h \
     $$PWD/edbee/commands/debugcommand.h \
     $$PWD/edbee/commands/duplicatecommand.h \
+    $$PWD/edbee/commands/ebremovecommand.h \
     $$PWD/edbee/commands/findcommand.h \
     $$PWD/edbee/commands/movelinecommand.h \
     $$PWD/edbee/commands/newlinecommand.h \
     $$PWD/edbee/commands/pastecommand.h \
     $$PWD/edbee/commands/redocommand.h \
-    $$PWD/edbee/commands/removecommand.h \
     $$PWD/edbee/commands/replaceselectioncommand.h \
     $$PWD/edbee/commands/selectioncommand.h \
     $$PWD/edbee/commands/tabcommand.h \

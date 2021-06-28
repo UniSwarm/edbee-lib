@@ -15,7 +15,7 @@
 #include "edbee/commands/movelinecommand.h"
 #include "edbee/commands/newlinecommand.h"
 #include "edbee/commands/redocommand.h"
-#include "edbee/commands/removecommand.h"
+#include "edbee/commands/ebremovecommand.h"
 #include "edbee/commands/replaceselectioncommand.h"
 #include "edbee/commands/selectioncommand.h"
 #include "edbee/commands/tabcommand.h"
