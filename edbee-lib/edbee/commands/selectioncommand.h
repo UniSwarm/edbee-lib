@@ -25,10 +25,11 @@ public:
         MoveCaretByWord,                ///< moves the caret(s) by the given amount of words
         MoveCaretByLine,                ///< moves the caret(s) by the given amount of lines
         MoveCaretByPage,                ///< moves the caret(s) by the given amount of pages
+        MoveCaretToWordBoundary,        ///< moves the caret to a line-boundary (<0 begin of line, >0 end of line)
         MoveCaretToLineBoundary,        ///< moves the caret to a line-boundary (<0 begin of line, >0 end of line)
         MoveCaretToDocumentBegin,       ///< moves the caret to the document start
         MoveCaretToDocumentEnd,         ///< moves the caret to the document end
-        MoveCaretToExactOffset,         ///< moves the caret to the given offset (given in  amount)
+        MoveCaretToExactOffset,         ///< moves the caret to the given offset (given in  amount). (This action also support the adjustment of the anchor)
 
       // selection only
         SelectAll,                      ///< selects the complete document
@@ -47,6 +48,7 @@ public:
     explicit SelectionCommand( SelectionType unit, int amount=0, bool keepSelection=false, int rangeIndex = -1 );
     virtual ~SelectionCommand();
 
+
     virtual int commandId();
 
 
@@ -58,11 +60,15 @@ public:
     int amount() { return amount_; }
     bool keepSelection() { return keepSelection_; }
     int rangeIndex() { return rangeIndex_; }
+    void setAnchor(int anchor) { anchor_ = anchor; }
+    int anchor() { return anchor_; }
+
 
 private:
 
     SelectionType unit_;
     int amount_;
+    int anchor_;              ///< currently only used for word-selection / line selection
     bool keepSelection_;
     int rangeIndex_;
 };

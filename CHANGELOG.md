@@ -2,6 +2,21 @@
 
 edbee.lib:
 
+- fix #125, CMake 3.20 Deprecation Warning
+- fix #123, Clicking on TextMarginComponet now moves focus to TextEditorComponent
+- fix #121, Standard Keys not working correctly (Fixed by fetching ALL keybindings via QKeySequence::keyBinding)
+- fix #119, Missing `case MoveCaretToWordBoundary:` in `switch` statement
+- fix #118, Missing `override` specifier in command header files
+- fix #115, basic Tripple-click support
+- fix #114, Double-click + drag should end at word boundaries
+- #112, Workaround for missing Qt::endl in Qt 5.12
+- Support for sticky-selection in replaceSelection methods. (Required for InpuMethod entry)
+- Improved TextEditorComponent::InputMethodEvent... It now support special chars entry like expected. (Option+e,  e => ´ => é)
+- ref #107, Several improvements  (Thanks @sebcaux)
+  - Fixed gapvector destructor: it did not use an array delete.
+  - TextEditorWidget::setHorizontalScrollBar not emits the correct horizontalScrollBarChanged event.
+  - (Did not include the condition defines, for older Qt versions)
+- ref #106, Missing round function on SuSE. (Changed to qRound)
 - ref #99, Speed improvements for markAll. (Added beginChanges and endChanges, to  prevent updating)
 - fix #96, Added support for readonly mode, via widget->setReadonly() or controller->setReadonly
 - fix #90, Fixed several Qt deprecation warnings. Chagned 0 to nullptr. Possible incompatibility with older releases!

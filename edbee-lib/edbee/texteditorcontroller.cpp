@@ -579,30 +579,30 @@ void TextEditorController::setReadonly(bool value)
 /// @param length the number of characters to replace
 /// @param text the text to replace
 /// @param coalesceId the identifier for grouping undo operations
-void TextEditorController::replace(int offset, int length, const QString& text, int coalesceId)
+void TextEditorController::replace(int offset, int length, const QString& text, int coalesceId, bool stickySelection)
 {
 //    SelectionTextChange* change = new SelectionTextChange(this);
     TextRangeSet ranges(textDocument());
     ranges.addRange(offset, offset+length);
-    replaceRangeSet(ranges,text,coalesceId);
+    replaceRangeSet(ranges,text,coalesceId, stickySelection);
 }
 
 
 /// This method replaces the selection with the given text
 /// @param text the text to replace the selection with
 /// @param coalesceId the identifier for grouping undo operations
-void TextEditorController::replaceSelection(const QString& text, int coalesceId )
+void TextEditorController::replaceSelection(const QString& text, int coalesceId, bool stickySelection)
 {
-    replaceRangeSet( *dynamic_cast<TextRangeSet*>( textSelection() ), text, coalesceId );
+    replaceRangeSet( *dynamic_cast<TextRangeSet*>( textSelection() ), text, coalesceId, stickySelection);
 }
 
 
 /// This method replaces the given selection with the given texts
 /// @param texts the list of texts that need to be replaced
 /// @param coalesceID the identifier for grouping undo operation
-void TextEditorController::replaceSelection(const QStringList& texts, int coalesceId)
+void TextEditorController::replaceSelection(const QStringList& texts, int coalesceId, bool stickySelection)
 {
-    replaceRangeSet( *dynamic_cast<TextRangeSet*>( textSelection() ), texts, coalesceId );
+    replaceRangeSet(*dynamic_cast<TextRangeSet*>( textSelection() ), texts, coalesceId, stickySelection);
 }
 
 
@@ -610,13 +610,13 @@ void TextEditorController::replaceSelection(const QStringList& texts, int coales
 /// @param reangeSet hte ranges to replace
 /// @param text the text to replace the selection with
 /// @param coalesceId the identifier for grouping undo operations
-void TextEditorController::replaceRangeSet(TextRangeSet& rangeSet, const QString& text, int coalesceId)
+void TextEditorController::replaceRangeSet(TextRangeSet& rangeSet, const QString& text, int coalesceId, bool stickySelection)
 {
     if(readonly()) return;
 
     textDocument()->beginChanges( this );
-    textDocument()->replaceRangeSet(rangeSet, text);
-    textDocument()->endChanges( coalesceId );
+    textDocument()->replaceRangeSet(rangeSet, text, stickySelection);
+    textDocument()->endChanges(coalesceId);
     notifyStateChange();
 }
 
@@ -625,12 +625,12 @@ void TextEditorController::replaceRangeSet(TextRangeSet& rangeSet, const QString
 /// @param rangeSet the rangeset to fille
 /// @param text the texts to fill the given ranges with.
 /// @param coalesceId the identifier for grouping undo operations
-void TextEditorController::replaceRangeSet(TextRangeSet& rangeSet, const QStringList& texts, int coalesceId)
+void TextEditorController::replaceRangeSet(TextRangeSet& rangeSet, const QStringList& texts, int coalesceId, bool stickySelection)
 {
     if(readonly()) return;
 
     textDocument()->beginChanges( this );
-    textDocument()->replaceRangeSet( rangeSet, texts );
+    textDocument()->replaceRangeSet( rangeSet, texts, stickySelection);
     textDocument()->endChanges( coalesceId );
     notifyStateChange();
 }
@@ -674,6 +674,17 @@ void TextEditorController::moveCaretToOffset(int offset, bool keepAnchors, int r
 {
 //    SelectionCommand* command = new SelectionCommand( SelectionCommand::MoveCaretToExactOffset, offset, keepAnchors );
     SelectionCommand command( SelectionCommand::MoveCaretToExactOffset, offset, keepAnchors, rangeIndex );
+    return executeCommand( &command );
+}
+
+/// Move the caret and the anchor to the given offeset
+/// @param caret the caret location
+/// @param anchor the anchor location
+/// The rangeIndex is used to specify which range to move.. (Defaults to -1 which changes to a single range)
+void TextEditorController::moveCaretAndAnchorToOffset(int caret, int anchor, int rangeIndex)
+{
+    SelectionCommand command( SelectionCommand::MoveCaretToExactOffset, caret, true, rangeIndex);
+    command.setAnchor(anchor);
     return executeCommand( &command );
 }
 

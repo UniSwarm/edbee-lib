@@ -7,6 +7,7 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QDateTime>
 #include <QMenu>
 #include <QPainter>
 #include <QPaintEvent>
@@ -31,6 +32,9 @@
 
 namespace edbee {
 
+const qint64 TRIPLE_CLICK_DELAY_IN_MS = 250; // 0.25 seconds
+
+
 /// The default texteditor compenent constructor
 /// @param controller the active controller for this editor
 /// @param parent the parent QObject
@@ -39,6 +43,9 @@ TextEditorComponent::TextEditorComponent(TextEditorController* controller, QWidg
     , caretTimer_(nullptr)
     , controllerRef_(controller)
     , textEditorRenderer_(nullptr)
+    , clickCount_(0)
+    , clickRange_()
+    , lastClickEvent_(0)
 {
     textEditorRenderer_ = new TextEditorRenderer( controller->textRenderer());
 
@@ -339,8 +346,13 @@ void TextEditorComponent::keyReleaseEvent(QKeyEvent *event)
 
 void TextEditorComponent::inputMethodEvent( QInputMethodEvent* m )
 {
-   // replace the selection with an empty text
-    /*if( textSelection()->hasSelection() ) {
+ #ifndef Q_OS_LINUX
+
+/// TODO: https://doc.qt.io/qt-5/qinputmethodevent.html
+/// Analyize how to implement this. The preeditString should NOT alter the undo-buffer
+
+    // replace the selection with an empty text (only if there's content to replace)
+    if( textSelection()->hasSelection() && (!m->preeditString().isEmpty() || !m->commitString().isEmpty())) {
         controller()->replaceSelection("",false);
     }*/
 
@@ -355,10 +367,14 @@ void TextEditorComponent::inputMethodEvent( QInputMethodEvent* m )
 
     /*if( !m->preeditString().isEmpty() ) {
 //        replaceSelection(m->preeditString());
+        controller()->replaceSelection(m->preeditString(),false, true);
     } else {
         controller()->replaceSelection(m->commitString(),false);
     }*/
 
+    m->accept();
+
+ #endif
 }
 
 
@@ -367,6 +383,20 @@ QVariant TextEditorComponent::inputMethodQuery( Qt::InputMethodQuery p ) const
 {
     Q_UNUSED(p);
     return QVariant();
+}
+
+/// registers a click event and modifies the clickcount and last-click moment
+void TextEditorComponent::registerClickEvent()
+{
+    qint64 currentClickEvent = QDateTime::currentMSecsSinceEpoch();
+    if( currentClickEvent - lastClickEvent_ <=TRIPLE_CLICK_DELAY_IN_MS ) {
+        clickCount_ += 1;
+    } else {
+        clickCount_ = 1;
+    }
+
+//    qlog_info() << "clickcount: " << clickCount_;
+    lastClickEvent_ = currentClickEvent;
 }
 
 
@@ -392,6 +422,16 @@ void TextEditorComponent::mousePressEvent(QMouseEvent* event)
         int col = renderer->columnIndexForXpos( line, x );
 
         if( event->button() == Qt::LeftButton ) {
+            registerClickEvent();
+            if( clickCount_ > 1 ) {
+                if( clickCount_ == 3) {
+                    SelectionCommand toggleWordSelectionAtCommand( SelectionCommand::SelectFullLine, 0);
+                    controller()->executeCommand( &toggleWordSelectionAtCommand );
+                    clickRange_ = textSelection()->range(0);
+                }
+                return;
+            }
+
             if( event->modifiers()&Qt::ControlModifier ) {
                 controller()->addCaretAt( line, col );
             } else {
@@ -432,11 +472,14 @@ void TextEditorComponent::mouseReleaseEvent(QMouseEvent *event)
 /// @param event the mouse double click that occured
 void TextEditorComponent::mouseDoubleClickEvent( QMouseEvent* event )
 {
-    static SelectionCommand selectWord( SelectionCommand::SelectWord );
     if( event->button() == Qt::LeftButton ) {
+        registerClickEvent();
+        if( clickCount_ > 2 ) {
+            return;
+        }
+
 
         if( event->modifiers()&Qt::ControlModifier ) {
-
             // get the location of the double
             int x = event->x();
             int y = event->y();
@@ -445,9 +488,11 @@ void TextEditorComponent::mouseDoubleClickEvent( QMouseEvent* event )
 
             // add the word there
             SelectionCommand toggleWordSelectionAtCommand( SelectionCommand::ToggleWordSelectionAt, textDocument()->offsetFromLineAndColumn(line,col) );
-            controller()->executeCommand( &toggleWordSelectionAtCommand );
+            controller()->executeCommand( &toggleWordSelectionAtCommand );           
         } else {
+            static SelectionCommand selectWord( SelectionCommand::SelectWord );
             controller()->executeCommand( &selectWord  );
+            clickRange_ = textSelection()->range(0);
         }
         return;
     }
@@ -470,6 +515,32 @@ void TextEditorComponent::mouseMoveEvent(QMouseEvent* event )
         int col = 0;
         if( line >= 0 ) { col = renderer->columnIndexForXpos( line, x ); }
         if( line < 0 ) { line = 0; }
+
+        if( clickCount_ == 2 ) {
+            TextRange range = textSelection()->range(0);
+
+            int newOffset = textDocument()->offsetFromLineAndColumn(line, col);
+            range.moveCaretToWordBoundaryAtOffset(textDocument(), newOffset);
+            range.minVar() = qMin(clickRange_.min(), range.min());
+            range.maxVar() = qMax(clickRange_.max(), range.max());
+
+
+            controller()->moveCaretAndAnchorToOffset(range.caret(), range.anchor());
+            return;
+        } else if( clickCount_ == 3 ) {
+            TextRange range = textSelection()->range(0);  // copy range
+
+            int clickLine = textDocument()->lineFromOffset(clickRange_.min());
+            if(line < clickLine ) {
+                range.set( textDocument()->offsetFromLine(line), clickRange_.max());
+            } else {
+                range.set(clickRange_.min(), textDocument()->offsetFromLine(line+1));
+            }
+
+            controller()->moveCaretAndAnchorToOffset(range.caret(), range.anchor());
+            return;
+        }
+
 
         if( event->modifiers() & Qt::ControlModifier) {
             controller()->moveCaretTo( line, col, true, controller()->textSelection()->rangeCount() - 1 );

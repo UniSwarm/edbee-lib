@@ -26,6 +26,7 @@ namespace edbee {
 SelectionCommand::SelectionCommand(SelectionType unit, int amount, bool keepSelection , int rangeIndex)
     : unit_(unit)
     , amount_(amount)
+    , anchor_(-1)
     , keepSelection_(keepSelection)
     , rangeIndex_(rangeIndex)
 {
@@ -84,6 +85,11 @@ void SelectionCommand::execute( TextEditorController* controller )
             TextSelection::moveCaretsByLine( controller, sel, amount_ );
             break;
 
+        case MoveCaretToWordBoundary:
+            sel->moveCaretsByCharGroup(amount_,  document->config()->whitespaceWithoutNewline(), document->config()->charGroups() );
+            break;
+
+
         case MoveCaretToLineBoundary:
             sel->moveCaretsToLineBoundary( amount_, document->config()->whitespaceWithoutNewline() );
             break;
@@ -119,14 +125,16 @@ void SelectionCommand::execute( TextEditorController* controller )
             break;
         }
         case MoveCaretToExactOffset:
-            if( rangeIndex_ >= 0 ) {
-                sel->range(rangeIndex_).setCaret(amount_);
-            } else {
+        {
+            if( rangeIndex_ < 0 ) {
                 sel->toSingleRange();
-                sel->range(0).setCaret(amount_);
-            }
-            break;
 
+            }
+            TextRange & range = sel->range( rangeIndex_ >= 0 ? rangeIndex_ : 0);
+            range.setCaret(amount_);
+            if( anchor_ >= 0 ) range.setAnchor(anchor_);
+            break;
+        }
         case SelectAll:
             sel->toSingleRange();
             sel->setRange(0, document->buffer()->length() );

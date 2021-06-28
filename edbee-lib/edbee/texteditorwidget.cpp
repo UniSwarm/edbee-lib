@@ -79,7 +79,7 @@ TextEditorWidget::TextEditorWidget(QWidget* parent)
 
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->addWidget( scrollAreaRef_ );
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     setLayout(layout);
     setFocusProxy( editCompRef_ );
@@ -241,7 +241,7 @@ QScrollBar* TextEditorWidget::verticalScrollBar() const
 void TextEditorWidget::setVerticalScrollBar(QScrollBar* scrollBar)
 {
     scrollAreaRef_->setVerticalScrollBar(scrollBar);
-    emit verticalScrollBarChanged( scrollBar );
+    emit verticalScrollBarChanged(scrollBar);
 }
 
 
@@ -251,7 +251,7 @@ void TextEditorWidget::setVerticalScrollBar(QScrollBar* scrollBar)
 void TextEditorWidget::setHorizontalScrollBar(QScrollBar* scrollBar)
 {
     scrollAreaRef_->setHorizontalScrollBar(scrollBar);
-    emit horizontalScrollBarChanged( scrollBar );
+    emit horizontalScrollBarChanged(scrollBar);
 }
 
 /// Returns the auto scroll margin
