@@ -249,7 +249,7 @@ void TextMarginComponent::paintEvent(QPaintEvent* event)
 
     QPainter painter(this);
 
-    painter.translate(0, -top_);
+    painter.translate(1, -top_ + 1);
 
     QRect paintRect = event->rect();
 //    QRect translatedRect( clipRect.x()+offsetX, clipRect.y()+offsetY, clipRect.width(), clipRect.height() );
@@ -267,7 +267,7 @@ void TextMarginComponent::paintEvent(QPaintEvent* event)
 //qlog_info()<< "** top:"<<top_<<", total:"<<totalRect<<", paintRect: "<<paintRect<<" => rect: " << rect;
 
     // fill the backgound
-    painter.fillRect( rect,  renderer()->theme()->backgroundColor() );
+    //painter.fillRect( rect,  renderer()->theme()->backgroundColor() );
 
     delegate()->renderBefore( &painter, startLine, endLine, size.width() );
     renderCaretMarkers( &painter, startLine, endLine, size.width() );
