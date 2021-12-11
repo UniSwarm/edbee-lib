@@ -352,7 +352,7 @@ void TextEditorComponent::inputMethodEvent( QInputMethodEvent* m )
 /// Analyize how to implement this. The preeditString should NOT alter the undo-buffer
 
     // replace the selection with an empty text (only if there's content to replace)
-    if( textSelection()->hasSelection() && (!m->preeditString().isEmpty() || !m->commitString().isEmpty())) {
+    /*if( textSelection()->hasSelection() && (!m->preeditString().isEmpty() || !m->commitString().isEmpty())) {
         controller()->replaceSelection("",false);
     }*/
 
