@@ -346,8 +346,6 @@ void TextEditorComponent::keyReleaseEvent(QKeyEvent *event)
 
 void TextEditorComponent::inputMethodEvent( QInputMethodEvent* m )
 {
- #ifndef Q_OS_LINUX
-
 /// TODO: https://doc.qt.io/qt-5/qinputmethodevent.html
 /// Analyize how to implement this. The preeditString should NOT alter the undo-buffer
 
@@ -365,16 +363,13 @@ void TextEditorComponent::inputMethodEvent( QInputMethodEvent* m )
 //    qlog_info() << "inputMethodEvent: commitStr=" << m->commitString() << ", preEditStr=" << m->preeditString() << ", start=" << m->replacementStart() << ", length" << m->replacementStart()  << " | " << str;
 */
 
-    /*if( !m->preeditString().isEmpty() ) {
-//        replaceSelection(m->preeditString());
+    if( !m->preeditString().isEmpty() ) {
         controller()->replaceSelection(m->preeditString(),false, true);
     } else {
         controller()->replaceSelection(m->commitString(),false);
-    }*/
+    }
 
     m->accept();
-
- #endif
 }
 
 
@@ -410,13 +405,14 @@ void TextEditorComponent::registerClickEvent()
 /// @param event the mouse event
 void TextEditorComponent::mousePressEvent(QMouseEvent* event)
 {
-    if( event->button() == Qt::LeftButton || event->button() == Qt::MidButton ) {
+    if( event->button() == Qt::LeftButton || event->button() == Qt::MiddleButton ) {
         TextRenderer* renderer = textRenderer();
 
 //        int x = renderer->widgetXToXpos( event->x() + horizontalScrollBar()->value() );
 //        int y = renderer->widgetYToYpos( event->y() + verticalScrollBar()->value() );
-        int x = event->x();
-        int y = event->y();
+        int x = event->pos().x();
+        int y = event->pos().y();
+
 
         int line = renderer->rawLineIndexForYpos( y );
         int col = renderer->columnIndexForXpos( line, x );
@@ -438,7 +434,7 @@ void TextEditorComponent::mousePressEvent(QMouseEvent* event)
                 controller()->moveCaretTo( line, col, event->modifiers()&Qt::ShiftModifier );
             }
         }
-        if( QApplication::clipboard()->supportsSelection() && event->button() == Qt::MidButton ) { // X11 / linux support middle button paste
+        if( QApplication::clipboard()->supportsSelection() && event->button() == Qt::MiddleButton ) { // X11 / linux support middle button paste
             controller()->moveCaretTo( line, col, false ); // clear actual selection and put cursor under mouse
             controller()->replaceSelection( QApplication::clipboard()->text(QClipboard::Selection), CoalesceId_Paste );
             controller()->updateStatusText();

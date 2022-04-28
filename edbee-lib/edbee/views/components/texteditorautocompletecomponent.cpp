@@ -10,7 +10,6 @@
 #include <QTextEdit>
 #include <QtGui>
 #include <QTime>
-#include <QDesktopWidget>
 
 #include "edbee/edbee.h"
 #include "edbee/models/textautocompleteprovider.h"
@@ -200,7 +199,8 @@ void TextEditorAutoCompleteComponent::showInfoTip()
 
     QPoint newLoc(listWidgetRef_->parentWidget()->mapToGlobal(r.topRight()).x() + xOffset, listWidgetRef_->parentWidget()->mapToGlobal(r.topRight()).y() + 1);
 
-    QRect screen = QApplication::desktop()->availableGeometry(this);
+    QRect screen = QApplication::primaryScreen()->availableGeometry();
+
     if( newLoc.x() + infoTipRef_->width() > screen.x() + screen.width() && (menuRef_->x() - infoTipRef_->width() - 1) >= 0 ){
         newLoc.setX(menuRef_->x() - infoTipRef_->width() - 1);
     }
@@ -552,7 +552,7 @@ void FakeToolTip::paintEvent(QPaintEvent*)
     TextRenderer* renderer = controller()->textRenderer();
     TextTheme* themeRef_ = renderer->theme();
 
-    opt->init(this);
+    opt->initFrom(this);
     style->drawPrimitive(QStyle::PE_PanelTipLabel, opt, p);
 
     tipText->setDefaultFont(controller()->textDocument()->config()->font());
@@ -583,7 +583,7 @@ void FakeToolTip::resizeEvent(QResizeEvent *)
 {
     QStyleHintReturnMask frameMask;
     QStyleOption option;
-    option.init(this);
+    option.initFrom(this);
 }
 
 }// edbee
