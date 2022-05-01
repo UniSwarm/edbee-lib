@@ -1,6 +1,7 @@
 
-
 INCLUDEPATH += $$PWD
+
+greaterThan(QT_MAJOR_VERSION,5): QT += core5compat
 
 SOURCES += \
     $$PWD/edbee/commands/commentcommand.cpp \
