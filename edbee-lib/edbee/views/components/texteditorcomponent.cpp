@@ -346,6 +346,7 @@ void TextEditorComponent::keyReleaseEvent(QKeyEvent *event)
 
 void TextEditorComponent::inputMethodEvent( QInputMethodEvent* m )
 {
+#ifndef Q_OS_LINUX
 /// TODO: https://doc.qt.io/qt-5/qinputmethodevent.html
 /// Analyize how to implement this. The preeditString should NOT alter the undo-buffer
 
@@ -370,6 +371,9 @@ void TextEditorComponent::inputMethodEvent( QInputMethodEvent* m )
     }
 
     m->accept();
+#else
+    Q_UNUSED(m);
+#endif
 }
 
 
