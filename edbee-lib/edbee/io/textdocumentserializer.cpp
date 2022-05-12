@@ -44,7 +44,7 @@ bool TextDocumentSerializer::loadWithoutOpening( QIODevice* ioDevice )
     QTextDecoder* textDecoder=0;
 
     // read the buffer
-    QByteArray bytes(blockSize_,0);
+    QByteArray bytes(blockSize_+2,0);
     QString remainingBuffer;
 
     /// TODO: atEnd doesn't seem to work !?!
