@@ -570,7 +570,7 @@ void TextRenderer::resetCaretTime()
 }
 
 
-/// this method returnst true if the caret is visible
+/// this method returns true if the caret is visible
 bool TextRenderer::shouldRenderCaret()
 {
     if( caretTime_ < 0 ) { return false; }
@@ -637,14 +637,15 @@ void TextRenderer::textDocumentChanged(edbee::TextDocument *oldDocument, edbee::
     reset();
 
     // connect with the new dpcument
-    connect( newDocument, SIGNAL(textChanged(edbee::TextBufferChange)), this, SLOT(textChanged(edbee::TextBufferChange)));
+    connect( newDocument, SIGNAL(textChanged(edbee::TextBufferChange, QString)), this, SLOT(textChanged(edbee::TextBufferChange, QString)));
     connect( newDocument, SIGNAL(lastScopedOffsetChanged(int,int)), this, SLOT(lastScopedOffsetChanged(int,int)) );
 }
 
 
 /// The text is replaced
-void TextRenderer::textChanged(edbee::TextBufferChange change)
+void TextRenderer::textChanged(edbee::TextBufferChange change, QString oldText)
 {
+    Q_UNUSED(oldText)
     int lineCount = qMax( change.lineCount(), change.newLineCount()) + 1;
 
     // Unfortunately when the line-count is changed we need to invalidate all

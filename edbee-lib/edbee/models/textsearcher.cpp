@@ -259,9 +259,9 @@ void TextSearcher::markAll(TextRangeSet *rangeset)
 /// @param widget the widget to find the next item
 bool TextSearcher::findNext(TextEditorWidget* widget )
 {
-    QScopedPointer<TextRangeSet> newRangeSet( new TextRangeSet( widget->textSelection() ) );
-    if( findNext( newRangeSet.data() ) ) {
-        widget->controller()->changeAndGiveTextSelection( newRangeSet.take() );
+    std::unique_ptr<TextRangeSet> newRangeSet( new TextRangeSet( widget->textSelection() ) );
+    if( findNext( newRangeSet.get() ) ) {
+        widget->controller()->changeAndGiveTextSelection( newRangeSet.release() );
         return true;
     }
     return false;
@@ -272,9 +272,9 @@ bool TextSearcher::findNext(TextEditorWidget* widget )
 /// @param widget the widget to search in
 bool TextSearcher::findPrev( TextEditorWidget* widget)
 {
-    QScopedPointer<TextRangeSet> newRangeSet( new TextRangeSet( widget->textSelection() ) );
-    if( findPrev( newRangeSet.data() ) ) {
-        widget->controller()->changeAndGiveTextSelection( newRangeSet.take() );
+    std::unique_ptr<TextRangeSet> newRangeSet( new TextRangeSet( widget->textSelection() ) );
+    if( findPrev( newRangeSet.get() ) ) {
+        widget->controller()->changeAndGiveTextSelection( newRangeSet.release() );
         return true;
     }
     return false;
@@ -285,9 +285,9 @@ bool TextSearcher::findPrev( TextEditorWidget* widget)
 /// @param widget the widget to search in
 bool TextSearcher::selectNext( TextEditorWidget* widget )
 {
-    QScopedPointer<TextRangeSet> newRangeSet( new TextRangeSet( widget->textSelection() ) );
-    if( selectNext( newRangeSet.data() ) ) {
-        widget->controller()->changeAndGiveTextSelection( newRangeSet.take() );
+    std::unique_ptr<TextRangeSet> newRangeSet( new TextRangeSet( widget->textSelection() ) );
+    if( selectNext( newRangeSet.get() ) ) {
+        widget->controller()->changeAndGiveTextSelection( newRangeSet.release() );
         return true;
     }
     return false;
@@ -298,9 +298,9 @@ bool TextSearcher::selectNext( TextEditorWidget* widget )
 /// @param widget the widget to to search in
 bool TextSearcher::selectPrev( TextEditorWidget* widget )
 {
-    QScopedPointer<TextRangeSet> newRangeSet( new TextRangeSet( widget->textSelection() ) );
-    if( selectPrev( newRangeSet.data() ) ) {
-        widget->controller()->changeAndGiveTextSelection( newRangeSet.take() );
+    std::unique_ptr<TextRangeSet> newRangeSet( new TextRangeSet( widget->textSelection() ) );
+    if( selectPrev( newRangeSet.get() ) ) {
+        widget->controller()->changeAndGiveTextSelection( newRangeSet.release() );
         return true;
     }
     return false;
@@ -312,9 +312,9 @@ bool TextSearcher::selectPrev( TextEditorWidget* widget )
 /// @param selection the selection to change
 bool TextSearcher::selectAll( TextEditorWidget* widget )
 {
-    QScopedPointer<TextRangeSet> newRangeSet( new TextRangeSet( widget->textSelection() ) );
-    if( selectAll( newRangeSet.data() ) ) {
-        widget->controller()->changeAndGiveTextSelection( newRangeSet.take() );
+    std::unique_ptr<TextRangeSet> newRangeSet( new TextRangeSet( widget->textSelection() ) );
+    if( selectAll( newRangeSet.get() ) ) {
+        widget->controller()->changeAndGiveTextSelection( newRangeSet.release() );
         return true;
     }
     return false;
@@ -326,7 +326,7 @@ bool TextSearcher::selectAll( TextEditorWidget* widget )
 /// @param selectAllTexts if true then all occurences are selected
 void TextSearcher::selectUnderExpand( TextEditorWidget* widget, bool selectAllTexts )
 {
-    QScopedPointer<TextRangeSet> newRangeSet( new TextRangeSet( widget->textSelection() ) );
+    std::unique_ptr<TextRangeSet> newRangeSet( new TextRangeSet( widget->textSelection() ) );
     bool runSelect = true;  // should the select be called
 
     // when no selection is used select it
@@ -348,14 +348,14 @@ void TextSearcher::selectUnderExpand( TextEditorWidget* widget, bool selectAllTe
     // next select the next word
     if( runSelect) {
         if( selectAllTexts ) {
-            selectAll( newRangeSet.data() );
+            selectAll( newRangeSet.get() );
         } else {
-            selectNext( newRangeSet.data() );
+            selectNext( newRangeSet.get() );
         }
     }
 
     // set the new rangeset
-    widget->controller()->changeAndGiveTextSelection( newRangeSet.take() );
+    widget->controller()->changeAndGiveTextSelection( newRangeSet.release() );
 
 }
 

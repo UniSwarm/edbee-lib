@@ -51,9 +51,9 @@ bool TextDocumentSerializer::loadWithoutOpening( QIODevice* ioDevice )
 /// TODO: implement isStopRequested to stop loading if required
     while( /*ioDeviceRef_->atEnd() &&*/ true /*!isStopRequested()*/ ) {
 
-        int bytesRead = ioDevice->read( bytes.data(), blockSize_ );
+        int bytesRead = ioDevice->read( bytes.data(), blockSize_ - 1);
         if( bytesRead > 0 ) {
-            bytes[bytesRead+1] = 0; // 0 terminate the read bytes
+            bytes[bytesRead + 1] = 0; // 0 terminate the read bytes
 
             // In the first block we're need to detect the correct encoding
             if( !detectedCodec ) {

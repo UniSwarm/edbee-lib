@@ -33,6 +33,7 @@ TextEditorAutoCompleteComponent::TextEditorAutoCompleteComponent(TextEditorContr
     , editorComponentRef_(parent)
     , marginComponentRef_(margin)
     , eventBeingFiltered_(false)
+    , canceled_(false)
     , infoTipRef_(nullptr)
 {
     /// initialize the widget
@@ -40,8 +41,11 @@ TextEditorAutoCompleteComponent::TextEditorAutoCompleteComponent(TextEditorContr
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
 
+    this->setFocusPolicy(Qt::NoFocus);
+
     menuRef_ = new QMenu(this);
     listWidgetRef_ = new QListWidget(menuRef_);
+    listWidgetRef_->setFocusPolicy(Qt::NoFocus);
     listWidgetRef_->installEventFilter(this);
     menuRef_->installEventFilter(this);
     menuRef_->setStyleSheet("QMenu { border: 1px solid black; }");
@@ -54,8 +58,6 @@ TextEditorAutoCompleteComponent::TextEditorAutoCompleteComponent(TextEditorContr
     menuRef_->addAction(wAction);
 
     listWidgetRef_->setFocus();
-
-    hide();
 
     infoTipRef_ = new FakeToolTip(controllerRef_, this);
 
@@ -112,7 +114,14 @@ bool TextEditorAutoCompleteComponent::shouldDisplayAutoComplete(TextRange& range
     wordRange.maxVar() = range.max(); // next go past the right caret!
     word = doc->textPart(wordRange.min(), wordRange.length()).trimmed();      // workaround for space select bug! #61
 
-    if(word.isEmpty()) return false;
+    if(word.isEmpty()) {
+        canceled_ = false;
+        return false;
+    }
+
+    // canceled state, hides the autocomplete
+    if( canceled_ ) { return false; }
+
 
     // else we can should
     return true;
@@ -327,6 +336,7 @@ bool TextEditorAutoCompleteComponent::eventFilter(QObject *obj, QEvent *event)
         switch( key->key() ) {
             case Qt::Key_Escape:
                 menuRef_->close();
+                canceled_ = true;
                 return true; // stop event
 
             case Qt::Key_Enter:
@@ -343,7 +353,7 @@ bool TextEditorAutoCompleteComponent::eventFilter(QObject *obj, QEvent *event)
                 }
                 break;
 
-        case Qt::Key_Backspace:
+            case Qt::Key_Backspace:
                 QApplication::sendEvent(editorComponentRef_, event);
                 return true;
 
@@ -385,20 +395,23 @@ void TextEditorAutoCompleteComponent::updateList()
     TextDocument* doc = controller()->textDocument();
     TextRange range = controller()->textSelection()->range(0);
 
-    if (!isVisible() && !doc->config()->autocompleteAutoShow())
-    {
+    if (!doc->config()->autocompleteAutoShow()) {
         return;
     }
 
     // when the character after
     if(!shouldDisplayAutoComplete(range, currentWord_)) {
-      menuRef_->close();
-      return;
+        if(isVisible()) {
+            menuRef_->close();
+        }
+        return;
     }
 
     // fills the autocomplete list with the curent word
     if( fillAutoCompleteList(doc, range, currentWord_)) {
         menuRef_->popup(menuRef_->pos());
+
+        editorComponentRef_->setFocus();
 
         // position the widget
         showInfoTip();

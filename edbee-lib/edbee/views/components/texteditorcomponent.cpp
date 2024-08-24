@@ -5,6 +5,7 @@
 
 #include "texteditorcomponent.h"
 
+#include <QAccessibleEvent>
 #include <QApplication>
 #include <QClipboard>
 #include <QDateTime>
@@ -63,7 +64,9 @@ TextEditorComponent::TextEditorComponent(TextEditorController* controller, QWidg
 
 //    setAttribute( Qt::WA_MacShowFocusRect); // show a mac focus rect
 
-    setFocusPolicy( Qt::WheelFocus   );
+    setFocusPolicy(Qt::WheelFocus);
+
+
     //  setFocusPolicy(Qt::ClickFocus);       (since 2013-02-16, can be removed tab still works :) )
     setAttribute(Qt::WA_KeyCompression);
     setAttribute(Qt::WA_InputMethodEnabled);
@@ -291,6 +294,7 @@ void TextEditorComponent::keyPressEvent(QKeyEvent* event)
     if( match == QKeySequence::ExactMatch ) {
 //        qlog_info() << "[[[ found command:" << command << "]]";
         controller()->executeCommand( command );
+
         lastKeySequence_ = QKeySequence();
         return;
     }
@@ -310,10 +314,12 @@ void TextEditorComponent::keyPressEvent(QKeyEvent* event)
                 textDocument()->textUndoStack()->resetAllLastCoalesceIds();
             }
         }
+
         lastCharacter_ = text;
         controller()->replaceSelection( text, CoalesceId_AppendChar );
         controller()->updateStatusText();
         emit textKeyPressed();
+
     } else {
         QWidget::keyPressEvent(event);
     }
@@ -324,7 +330,7 @@ void TextEditorComponent::keyPressEvent(QKeyEvent* event)
 /// the key release event
 void TextEditorComponent::keyReleaseEvent(QKeyEvent *event)
 {
-    Q_UNUSED(event)
+    QWidget::keyReleaseEvent(event);
 }
 
 
@@ -481,14 +487,17 @@ void TextEditorComponent::mouseDoubleClickEvent( QMouseEvent* event )
 
         if( event->modifiers()&Qt::ControlModifier ) {
             // get the location of the double
-            int x = event->x();
-            int y = event->y();
-            int line = textRenderer()->rawLineIndexForYpos( y );
-            int col = textRenderer()->columnIndexForXpos( line, x );
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+            auto eventPos = event->pos();
+#else
+            auto eventPos = event->position().toPoint();
+#endif
+            int line = textRenderer()->rawLineIndexForYpos( eventPos.y() );
+            int col = textRenderer()->columnIndexForXpos( line, eventPos.x() );
 
             // add the word there
             SelectionCommand toggleWordSelectionAtCommand( SelectionCommand::ToggleWordSelectionAt, textDocument()->offsetFromLineAndColumn(line,col) );
-            controller()->executeCommand( &toggleWordSelectionAtCommand );           
+            controller()->executeCommand( &toggleWordSelectionAtCommand );
         } else {
             static SelectionCommand selectWord( SelectionCommand::SelectWord );
             controller()->executeCommand( &selectWord  );
@@ -508,12 +517,14 @@ void TextEditorComponent::mouseMoveEvent(QMouseEvent* event )
     if( event->buttons() & Qt::LeftButton ) {
         TextRenderer* renderer = textRenderer();
 
-        int x = event->x();
-        int y = event->y();
-
-        int line = renderer->rawLineIndexForYpos( y );
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        auto eventPos = event->pos();
+#else
+        auto eventPos = event->position().toPoint();
+#endif
+        int line = renderer->rawLineIndexForYpos( eventPos.y() );
         int col = 0;
-        if( line >= 0 ) { col = renderer->columnIndexForXpos( line, x ); }
+        if( line >= 0 ) { col = renderer->columnIndexForXpos( line, eventPos.x() ); }
         if( line < 0 ) { line = 0; }
 
         if( clickCount_ == 2 ) {
@@ -633,7 +644,7 @@ void TextEditorComponent::updateLineAtOffset(int offset)
 }
 
 
-/// updates the character before and at the given offest
+/// updates the character before and at the given offset
 void TextEditorComponent::updateAreaAroundOffset(int offset, int width )
 {
     TextRenderer* ren = textRenderer();

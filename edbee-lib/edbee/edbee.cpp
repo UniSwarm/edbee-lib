@@ -6,6 +6,7 @@
 #include "edbee.h"
 
 #include <QApplication>
+#include <QAccessible>
 
 #include "edbee/models/textautocompleteprovider.h"
 #include "edbee/models/dynamicvariables.h"
@@ -15,6 +16,7 @@
 #include "edbee/models/textdocumentscopes.h"
 #include "edbee/models/textgrammar.h"
 #include "edbee/util/textcodec.h"
+#include "edbee/views/accessibletexteditorwidget.h"
 #include "edbee/views/texttheme.h"
 
 
@@ -79,7 +81,7 @@ void Edbee::setGrammarPath( const QString& grammarPath )
 }
 
 
-/// Setst the path where to find the theme files
+/// Sets the path where to find the theme files
 /// @param themePath the path to find the themes
 void Edbee::setThemePath( const QString& themePath )
 {
@@ -87,7 +89,7 @@ void Edbee::setThemePath( const QString& themePath )
 }
 
 
-/// This method automaticly initializes the edbee library it this hasn't already been done
+/// This method automatically initializes the edbee library it this hasn't already been done
 void Edbee::autoInit()
 {
     if( !inited_ ) {
@@ -182,9 +184,11 @@ void Edbee::init()
 
     qRegisterMetaType<edbee::TextBufferChange>("edbee::TextBufferChange");
 
+    // register the AccessibileText interface
+    QAccessible::installFactory(edbee::AccessibleTextEditorWidget::factory);
+
     // factory fill the default command map
     defaultCommandMap_->loadFactoryCommandMap();
-
 
     // load all grammar definitions
     if( !grammarPath_.isEmpty() ) {
@@ -218,7 +222,7 @@ void Edbee::shutdown()
 }
 
 
-/// Call this method to automaticly shutdown the texteditor manager on shutdown
+/// Call this method to automatically shutdown the texteditor manager on shutdown
 /// (This method listens to the qApp::aboutToQuit signal
 void Edbee::autoShutDownOnAppExit()
 {
@@ -284,7 +288,7 @@ TextKeyMapManager* Edbee::keyMapManager()
 }
 
 
-/// Rreturns the dynamicvariables object
+/// Returns the dynamicvariables object
 DynamicVariables* Edbee::environmentVariables()
 {
     Q_ASSERT(inited_);
