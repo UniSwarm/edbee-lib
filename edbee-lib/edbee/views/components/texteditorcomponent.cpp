@@ -69,7 +69,9 @@ TextEditorComponent::TextEditorComponent(TextEditorController* controller, QWidg
 
     //  setFocusPolicy(Qt::ClickFocus);       (since 2013-02-16, can be removed tab still works :) )
     setAttribute(Qt::WA_KeyCompression);
+#ifndef Q_OS_LINUX
     setAttribute(Qt::WA_InputMethodEnabled);
+#endif
 
     // set the cursor type
     setCursor(Qt::IBeamCursor);
